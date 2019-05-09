@@ -7,11 +7,11 @@
 #include "ProceduralMeshesGameModeBase.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class PROCEDURALMESHES_API AProceduralMeshesGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
-	
+
 };
