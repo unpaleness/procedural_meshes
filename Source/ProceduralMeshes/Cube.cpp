@@ -1,20 +1,6 @@
 #include "Cube.h"
-#include "Kismet/KismetMaterialLibrary.h"
 
 ACube::ACube() {}
-
-void ACube::GenerateMesh() {
-	InnerSize = Size;
-
-	Super::GenerateMesh();
-}
-
-bool ACube::HasChanges() {
-	if (Size != InnerSize) {
-		return true;
-	}
-	return false;
-}
 
 void ACube::InitArrays() {
 	Super::InitArrays();
@@ -66,7 +52,7 @@ void ACube::InitArrays() {
 	AddTriangle(20, 23, 21);
 	AddTriangle(20, 22, 23);
 
-	for (int i = 0; i < 6; ++i) {
+	for (int32 i = 0; i < 6; ++i) {
 		UVs.Add(FVector2D(0.0f, 1.0f));
 		UVs.Add(FVector2D(0.0f, 0.0f));
 		UVs.Add(FVector2D(1.0f, 1.0f));

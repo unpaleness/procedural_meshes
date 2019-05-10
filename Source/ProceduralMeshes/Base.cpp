@@ -1,5 +1,4 @@
 #include "Base.h"
-#include "Kismet/KismetMaterialLibrary.h"
 
 DEFINE_LOG_CATEGORY(LogProceduralMeshes)
 
@@ -32,19 +31,12 @@ void ABase::BeginPlay() {
 }
 
 void ABase::GenerateMesh() {
+	InnerSize = Size;
+
 	InitArrays();
 
-	if (IsValid(Mesh)) {
-		if (Mesh->GetNumSections() == 0) {
-			Mesh->CreateMeshSection_LinearColor(0, Vertices, Triangles, TArray<FVector>(), UVs, TArray<FLinearColor>(), TArray<FProcMeshTangent>(), true);
-		}
-		else {
-			Mesh->UpdateMeshSection_LinearColor(0, Vertices, TArray<FVector>(), UVs, TArray<FVector2D>(), TArray<FVector2D>(), TArray<FVector2D>(), TArray<FLinearColor>(), TArray<FProcMeshTangent>());
-		}
-	}
-	else {
-		UE_LOG(LogProceduralMeshes, Warning, TEXT("%s: Mesh is invalid!"), *GetName());
-	}
+	Mesh->ClearMeshSection(0);
+	Mesh->CreateMeshSection_LinearColor(0, Vertices, Triangles, TArray<FVector>(), UVs, TArray<FLinearColor>(), TArray<FProcMeshTangent>(), true);
 }
 
 void ABase::AddTriangle(int32 V1, int32 V2, int32 V3) {
@@ -54,6 +46,9 @@ void ABase::AddTriangle(int32 V1, int32 V2, int32 V3) {
 }
 
 bool ABase::HasChanges() {
+	if (Size != InnerSize) {
+		return true;
+	}
 	return false;
 }
 

@@ -26,7 +26,10 @@ protected:
 protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 		UProceduralMeshComponent* Mesh;
+	UPROPERTY(BlueprintReadonly, EditAnywhere, Category = "Settings")
+		float Size = 10.0f;
 
+	float InnerSize = 0.0f;
 	TArray<FVector> Vertices;
 	TArray<int32> Triangles;
 	TArray<FVector2D> UVs;
