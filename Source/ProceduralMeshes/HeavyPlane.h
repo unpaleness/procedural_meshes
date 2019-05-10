@@ -17,7 +17,7 @@ protected:
 	virtual void InitArrays() override;
 
 protected:
-	UPROPERTY(BlueprintReadonly, EditAnywhere, Category = "Settings", meta = (ClampMin = "2", ClampMax = "64", UIMin = "2", UIMax = "64"))
+	UPROPERTY(BlueprintReadonly, EditAnywhere, Category = "Settings", meta = (ClampMin = "2", ClampMax = "128", UIMin = "2", UIMax = "128"))
 		int32 VerticesPerSide = 2;
 
 	int32 InnerVerticesPerSide = 0;
