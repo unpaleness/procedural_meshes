@@ -1,13 +1,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Base.h"
 #include "ProceduralMeshComponent.h"
 #include "Cube.generated.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogProceduralMeshes, Log, All)
-
 UCLASS()
-class PROCEDURALMESHES_API ACube : public AActor {
+class PROCEDURALMESHES_API ACube : public ABase {
 	GENERATED_BODY()
 
 public:
@@ -18,19 +17,14 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	void GenerateMesh();
-	void AddTriangle(int32 V1, int32 V2, int32 V3);
-	void CheckChanges();
-	void InitArrays();
+	virtual void GenerateMesh() override;
+	virtual void CheckChanges() override;
+	virtual void InitArrays() override;
+	virtual void InitVertices() override;
 
 protected:
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
-		UProceduralMeshComponent* Mesh;
-
 	UPROPERTY(BlueprintReadonly, EditAnywhere, Category = "Settings")
-		float Size;
+		float Size = 10.0f;
 
-	TArray<int32> Triangles;
-	TArray<FVector2D> UVs;
 	float InnerSize = 0.0f;
 };
