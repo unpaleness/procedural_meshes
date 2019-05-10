@@ -18,22 +18,21 @@ void ABase::Tick(float DeltaTime) {
 }
 
 void ABase::OnConstruction(const FTransform& Transform) {
-	CheckChanges();
+	if (HasChanges()) {
+		GenerateMesh();
+	}
 }
 
 void ABase::BeginPlay() {
 	Super::BeginPlay();
 
-	CheckChanges();
+	if (HasChanges()) {
+		GenerateMesh();
+	}
 }
 
 void ABase::GenerateMesh() {
-	InitVertices();
-
-	UE_LOG(LogProceduralMeshes, Display, TEXT("%s: Start generating mesh"), *GetName());
-	UE_LOG(LogProceduralMeshes, Display, TEXT("%s: Vertices: %i"), *GetName(), Vertices.Num());
-	UE_LOG(LogProceduralMeshes, Display, TEXT("%s: Triangles: %i"), *GetName(), Triangles.Num() / 3);
-	UE_LOG(LogProceduralMeshes, Display, TEXT("%s: UVs: %i"), *GetName(), UVs.Num());
+	InitArrays();
 
 	if (IsValid(Mesh)) {
 		if (Mesh->GetNumSections() == 0) {
@@ -54,10 +53,12 @@ void ABase::AddTriangle(int32 V1, int32 V2, int32 V3) {
 	Triangles.Add(V3);
 }
 
-void ABase::CheckChanges() {}
+bool ABase::HasChanges() {
+	return false;
+}
 
-void ABase::InitArrays() {}
-
-void ABase::InitVertices() {
+void ABase::InitArrays() {
 	Vertices.Empty();
+	Triangles.Empty();
+	UVs.Empty();
 }

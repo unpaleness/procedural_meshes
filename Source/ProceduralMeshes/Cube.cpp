@@ -1,21 +1,7 @@
 #include "Cube.h"
 #include "Kismet/KismetMaterialLibrary.h"
 
-ACube::ACube() {
-	InitArrays();
-}
-
-void ACube::Tick(float DeltaTime) {
-	Super::Tick(DeltaTime);
-}
-
-void ACube::OnConstruction(const FTransform& Transform) {
-	Super::OnConstruction(Transform);
-}
-
-void ACube::BeginPlay() {
-	Super::BeginPlay();
-}
+ACube::ACube() {}
 
 void ACube::GenerateMesh() {
 	InnerSize = Size;
@@ -23,36 +9,15 @@ void ACube::GenerateMesh() {
 	Super::GenerateMesh();
 }
 
-void ACube::CheckChanges() {
+bool ACube::HasChanges() {
 	if (Size != InnerSize) {
-		GenerateMesh();
+		return true;
 	}
+	return false;
 }
 
 void ACube::InitArrays() {
-	AddTriangle(0, 3, 1);
-	AddTriangle(0, 2, 3);
-	AddTriangle(4, 7, 5);
-	AddTriangle(4, 6, 7);
-	AddTriangle(8, 11, 9);
-	AddTriangle(8, 10, 11);
-	AddTriangle(12, 15, 13);
-	AddTriangle(12, 14, 15);
-	AddTriangle(16, 19, 17);
-	AddTriangle(16, 18, 19);
-	AddTriangle(20, 23, 21);
-	AddTriangle(20, 22, 23);
-
-	for (int i = 0; i < 6; ++i) {
-		UVs.Add(FVector2D(0.0f, 1.0f));
-		UVs.Add(FVector2D(0.0f, 0.0f));
-		UVs.Add(FVector2D(1.0f, 1.0f));
-		UVs.Add(FVector2D(1.0f, 0.0f));
-	}
-}
-
-void ACube::InitVertices() {
-	Super::InitVertices();
+	Super::InitArrays();
 
 	FVector V0(-InnerSize / 2.0f, -InnerSize / 2.0f, -InnerSize / 2.0f);
 	FVector V1(-InnerSize / 2.0f, -InnerSize / 2.0f, InnerSize / 2.0f);
@@ -87,4 +52,24 @@ void ACube::InitVertices() {
 	Vertices.Add(V1);
 	Vertices.Add(V7);
 	Vertices.Add(V5);
+
+	AddTriangle(0, 3, 1);
+	AddTriangle(0, 2, 3);
+	AddTriangle(4, 7, 5);
+	AddTriangle(4, 6, 7);
+	AddTriangle(8, 11, 9);
+	AddTriangle(8, 10, 11);
+	AddTriangle(12, 15, 13);
+	AddTriangle(12, 14, 15);
+	AddTriangle(16, 19, 17);
+	AddTriangle(16, 18, 19);
+	AddTriangle(20, 23, 21);
+	AddTriangle(20, 22, 23);
+
+	for (int i = 0; i < 6; ++i) {
+		UVs.Add(FVector2D(0.0f, 1.0f));
+		UVs.Add(FVector2D(0.0f, 0.0f));
+		UVs.Add(FVector2D(1.0f, 1.0f));
+		UVs.Add(FVector2D(1.0f, 0.0f));
+	}
 }

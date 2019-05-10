@@ -19,9 +19,8 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual void GenerateMesh();
-	virtual void CheckChanges();
+	virtual bool HasChanges();
 	virtual void InitArrays();
-	virtual void InitVertices();
 	void AddTriangle(int32 V1, int32 V2, int32 V3);
 
 protected:

@@ -11,16 +11,11 @@ class PROCEDURALMESHES_API ACube : public ABase {
 
 public:
 	ACube();
-	virtual void Tick(float DeltaTime) override;
-	virtual void OnConstruction(const FTransform& Transform) override;
 
 protected:
-	virtual void BeginPlay() override;
-
 	virtual void GenerateMesh() override;
-	virtual void CheckChanges() override;
+	virtual bool HasChanges() override;
 	virtual void InitArrays() override;
-	virtual void InitVertices() override;
 
 protected:
 	UPROPERTY(BlueprintReadonly, EditAnywhere, Category = "Settings")
