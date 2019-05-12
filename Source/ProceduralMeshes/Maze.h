@@ -4,6 +4,12 @@
 #include "Base.h"
 #include "Maze.generated.h"
 
+enum class EMazeCubiodFaces : uint8 {
+	All,
+	Vertical,
+	Horizontal
+};
+
 UCLASS()
 class PROCEDURALMESHES_API AMaze : public ABase {
 	GENERATED_BODY()
@@ -17,7 +23,7 @@ protected:
 	virtual bool HasChanges() override;
 	virtual void InitArrays() override;
 
-	void AddCuboid(FVector P1, FVector P2, bool DrawBottom, bool DrawNorthSouth, bool DrawEastWest);
+	void AddCuboid(FVector P1, FVector P2, EMazeCubiodFaces Direction);
 	void GenerateMaze();
 
 protected:

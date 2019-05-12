@@ -47,7 +47,7 @@ void AMaze::InitArrays() {
 							CellSize * (W + (W + 1.0f) * i - ((W + 1.0f) * X + W) / 2.0f),
 							CellSize * ((W + 1.0f) * (j + 1) - ((W + 1.0f) * Y + W) / 2.0f),
 							H
-						), false, false, true
+						), EMazeCubiodFaces::Horizontal
 					);
 				}
 			}
@@ -64,16 +64,29 @@ void AMaze::InitArrays() {
 							CellSize * ((W + 1.0f) * (i + 1) - ((W + 1.0f) * X + W) / 2.0f),
 							CellSize * (W + (W + 1.0f) * j - ((W + 1.0f) * Y + W) / 2.0f),
 							H
-						), false, true, false
+						), EMazeCubiodFaces::Vertical
 					);
 				}
 			}
+			// Corner
+			AddCuboid(
+				FVector(
+					CellSize * ((W + 1.0f) * i - ((W + 1.0f) * X + W) / 2.0f),
+					CellSize * ((W + 1.0f) * j - ((W + 1.0f) * Y + W) / 2.0f),
+					0.0f
+				),
+				FVector(
+					CellSize * (W + (W + 1.0f) * i - ((W + 1.0f) * X + W) / 2.0f),
+					CellSize * (W + (W + 1.0f) * j - ((W + 1.0f) * Y + W) / 2.0f),
+					1.1f * H
+				), EMazeCubiodFaces::All
+			);
 		}
 	}
 }
 
-void AMaze::AddCuboid(FVector P1, FVector P2, bool DrawBottom, bool DrawNorthSouth, bool DrawEastWest) {
-	int32 V = Vertices.Num();
+void AMaze::AddCuboid(FVector P1, FVector P2, EMazeCubiodFaces Direction) {
+	int32 V { Vertices.Num() };
 
 	FVector V0(P1.X, P1.Y, P1.Z);
 	FVector V1(P1.X, P1.Y, P2.Z);
@@ -84,8 +97,7 @@ void AMaze::AddCuboid(FVector P1, FVector P2, bool DrawBottom, bool DrawNorthSou
 	FVector V6(P2.X, P2.Y, P1.Z);
 	FVector V7(P2.X, P2.Y, P2.Z);
 
-	if (DrawEastWest) {
-		V = Vertices.Num();
+	auto AddHorizontalVertices = [=]() {
 		Vertices.Add(V0);
 		Vertices.Add(V1);
 		Vertices.Add(V2);
@@ -94,13 +106,9 @@ void AMaze::AddCuboid(FVector P1, FVector P2, bool DrawBottom, bool DrawNorthSou
 		Vertices.Add(V7);
 		Vertices.Add(V4);
 		Vertices.Add(V5);
-		AddTriangle(V + 0, V + 3, V + 1);
-		AddTriangle(V + 0, V + 2, V + 3);
-		AddTriangle(V + 4, V + 7, V + 5);
-		AddTriangle(V + 4, V + 6, V + 7);
-	}
-	if (DrawNorthSouth) {
-		V = Vertices.Num();
+	};
+
+	auto AddVerticalVertices = [=]() {
 		Vertices.Add(V2);
 		Vertices.Add(V3);
 		Vertices.Add(V6);
@@ -109,39 +117,28 @@ void AMaze::AddCuboid(FVector P1, FVector P2, bool DrawBottom, bool DrawNorthSou
 		Vertices.Add(V5);
 		Vertices.Add(V0);
 		Vertices.Add(V1);
-		AddTriangle(V + 0, V + 3, V + 1);
-		AddTriangle(V + 0, V + 2, V + 3);
-		AddTriangle(V + 4, V + 7, V + 5);
-		AddTriangle(V + 4, V + 6, V + 7);
+	};
+
+	switch (Direction) {
+		case EMazeCubiodFaces::Horizontal:
+			AddHorizontalVertices();
+			break;
+		case EMazeCubiodFaces::Vertical:
+			AddVerticalVertices();
+			break;
+		default:
+			AddHorizontalVertices();
+			AddVerticalVertices();
+			break;
 	}
-	if (DrawBottom) {
-		V = Vertices.Num();
-		Vertices.Add(V0);
-		Vertices.Add(V2);
-		Vertices.Add(V4);
-		Vertices.Add(V6);
-		AddTriangle(V + 0, V + 3, V + 1);
-		AddTriangle(V + 0, V + 2, V + 3);
-	}
-	V = Vertices.Num();
 	Vertices.Add(V3);
 	Vertices.Add(V1);
 	Vertices.Add(V7);
 	Vertices.Add(V5);
-	AddTriangle(V + 0, V + 3, V + 1);
-	AddTriangle(V + 0, V + 2, V + 3);
 
-	int32 sides { 1 };
-	if (DrawEastWest) {
-		sides += 2;
-	}
-	if (DrawNorthSouth) {
-		sides += 2;
-	}
-	if (DrawBottom) {
-		sides += 1;
-	}
-	for (int32 i = 0; i < sides; ++i) {
+	for (int32 i = 0; i < (Vertices.Num() - V) / 4; ++i) {
+		AddTriangle(V + i * 4, V + i * 4 + 3, V + i * 4 + 1);
+		AddTriangle(V + i * 4, V + i * 4 + 2, V + i * 4 + 3);
 		UVs.Add(FVector2D(0.0f, 1.0f));
 		UVs.Add(FVector2D(0.0f, 0.0f));
 		UVs.Add(FVector2D(1.0f, 1.0f));
