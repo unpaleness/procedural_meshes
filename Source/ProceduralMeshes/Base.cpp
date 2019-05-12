@@ -46,10 +46,11 @@ void ABase::AddTriangle(int32 V1, int32 V2, int32 V3) {
 }
 
 bool ABase::HasChanges() {
+	bool result { false };
 	if (Size != InnerSize) {
-		return true;
+		result = true;
 	}
-	return false;
+	return result;
 }
 
 void ABase::InitArrays() {

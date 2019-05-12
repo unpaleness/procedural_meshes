@@ -9,14 +9,14 @@ void AHeavyPlane::GenerateMesh() {
 }
 
 bool AHeavyPlane::HasChanges() {
+	bool result { false };
 	if (Super::HasChanges()) {
-		return true;
+		result = true;
 	}
-
 	if (VerticesPerSide != InnerVerticesPerSide) {
-		return true;
+		result = true;
 	}
-	return false;
+	return result;
 }
 
 void AHeavyPlane::InitArrays() {
