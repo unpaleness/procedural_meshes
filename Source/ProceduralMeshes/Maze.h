@@ -23,6 +23,7 @@ protected:
 	virtual bool HasChanges() override;
 	virtual void InitArrays() override;
 
+	void AddPlane(FVector P1, FVector P2);
 	void AddCuboid(FVector P1, FVector P2, EMazeCubiodFaces Direction);
 	void GenerateMaze();
 

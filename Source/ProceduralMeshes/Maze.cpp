@@ -32,6 +32,20 @@ void AMaze::InitArrays() {
 	// One cell's size
 	float CellSize { Y >= X ? InnerSize / (W * (Y + 1) + Y) : InnerSize / (W * (X + 1) + X) };
 
+	// Add floor
+	AddPlane(
+		FVector(
+			-CellSize * (W * (X + 1) + X) / 2.0f,
+			-CellSize * (W * (Y + 1) + Y) / 2.0f,
+			0.0f
+		),
+		FVector(
+			CellSize * (W * (X + 1) + X) / 2.0f,
+			CellSize * (W * (Y + 1) + Y) / 2.0f,
+			0.0f
+		)
+	);
+
 	for (int32 j = 0; j < Y + 1; ++j) {
 		for (int32 i = 0; i < X + 1; ++i) {
 			// Vertical walls
@@ -85,17 +99,39 @@ void AMaze::InitArrays() {
 	}
 }
 
+void AMaze::AddPlane(FVector P1, FVector P2) {
+	int32 V { Vertices.Num() };
+
+	FVector V0(P1);
+	FVector V1(P2.X, P1.Y, (P1.Z + P2.Z) / 2.0f);
+	FVector V2(P1.X, P2.Y, (P1.Z + P2.Z) / 2.0f);
+	FVector V3(P2);
+
+	Vertices.Add(V0);
+	Vertices.Add(V1);
+	Vertices.Add(V2);
+	Vertices.Add(V3);
+
+	AddTriangle(V + 0, V + 3, V + 1);
+	AddTriangle(V + 0, V + 2, V + 3);
+
+	UVs.Add(FVector2D(0.0f, 1.0f));
+	UVs.Add(FVector2D(0.0f, 0.0f));
+	UVs.Add(FVector2D(1.0f, 1.0f));
+	UVs.Add(FVector2D(1.0f, 0.0f));
+}
+
 void AMaze::AddCuboid(FVector P1, FVector P2, EMazeCubiodFaces Direction) {
 	int32 V { Vertices.Num() };
 
-	FVector V0(P1.X, P1.Y, P1.Z);
+	FVector V0(P1);
 	FVector V1(P1.X, P1.Y, P2.Z);
 	FVector V2(P1.X, P2.Y, P1.Z);
 	FVector V3(P1.X, P2.Y, P2.Z);
 	FVector V4(P2.X, P1.Y, P1.Z);
 	FVector V5(P2.X, P1.Y, P2.Z);
 	FVector V6(P2.X, P2.Y, P1.Z);
-	FVector V7(P2.X, P2.Y, P2.Z);
+	FVector V7(P2);
 
 	auto AddHorizontalVertices = [=]() {
 		Vertices.Add(V0);
@@ -153,17 +189,21 @@ void AMaze::GenerateMaze() {
 	HWalls.Empty();
 	VWalls.Empty();
 
-	// Fill walls
-	for (int32 j = 0; j < Y + 1; ++j) {
-		for (int32 i = 0; i < X + 1; ++i) {
-			if (j < Y) {
-				VWalls.Add(rand() % 2 ? true : false);
-			}
-			if (i < X) {
-				HWalls.Add(rand() % 2 ? true : false);
-			}
-		}
-	}
+	// Init all walls with
+	HWalls.Init(true, (Y + 1) * X);
+	VWalls.Init(true, Y * (X + 1));
+
+	//// Fill walls
+	//for (int32 j = 0; j < Y + 1; ++j) {
+	//	for (int32 i = 0; i < X + 1; ++i) {
+	//		if (j < Y) {
+	//			VWalls.Add(rand() % 2 ? true : false);
+	//		}
+	//		if (i < X) {
+	//			HWalls.Add(rand() % 2 ? true : false);
+	//		}
+	//	}
+	//}
 
 	IsMazeNeedGenerate = false;
 }
