@@ -26,7 +26,7 @@ protected:
 protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 		UProceduralMeshComponent* Mesh;
-	UPROPERTY(BlueprintReadonly, EditAnywhere, Category = "Settings")
+	UPROPERTY(BlueprintReadonly, EditAnywhere, Category = "ProceduralMesh|Settings")
 		float Size = 10.0f;
 
 	float InnerSize = 0.0f;

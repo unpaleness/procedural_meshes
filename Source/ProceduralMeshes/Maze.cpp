@@ -31,19 +31,16 @@ void AMaze::InitArrays() {
 	W = WallWidthRelative;
 	H = Height;
 
-	// One cell's size
-	float CellSize{ Y >= X ? InnerSize / (W * (Y + 1) + Y) : InnerSize / (W * (X + 1) + X) };
-
 	// Add floor
 	AddPlane(
 		FVector(
-			-CellSize * (W * (X + 1) + X) / 2.0f,
-			-CellSize * (W * (Y + 1) + Y) / 2.0f,
+			-Size * (W * (X + 1) + X) / 2.0f,
+			-Size * (W * (Y + 1) + Y) / 2.0f,
 			0.0f
 		),
 		FVector(
-			CellSize * (W * (X + 1) + X) / 2.0f,
-			CellSize * (W * (Y + 1) + Y) / 2.0f,
+			Size * (W * (X + 1) + X) / 2.0f,
+			Size * (W * (Y + 1) + Y) / 2.0f,
 			0.0f
 		)
 	);
@@ -55,13 +52,13 @@ void AMaze::InitArrays() {
 				if (VWalls[j * (X + 1) + i]) {
 					AddCuboid(
 						FVector(
-							CellSize * ((W + 1.0f) * i - ((W + 1.0f) * X + W) / 2.0f),
-							CellSize * (W + (W + 1.0f) * j - ((W + 1.0f) * Y + W) / 2.0f),
+							Size * ((W + 1.0f) * i - ((W + 1.0f) * X + W) / 2.0f),
+							Size * (W + (W + 1.0f) * j - ((W + 1.0f) * Y + W) / 2.0f),
 							0.0f
 						),
 						FVector(
-							CellSize * (W + (W + 1.0f) * i - ((W + 1.0f) * X + W) / 2.0f),
-							CellSize * ((W + 1.0f) * (j + 1) - ((W + 1.0f) * Y + W) / 2.0f),
+							Size * (W + (W + 1.0f) * i - ((W + 1.0f) * X + W) / 2.0f),
+							Size * ((W + 1.0f) * (j + 1) - ((W + 1.0f) * Y + W) / 2.0f),
 							H
 						), EMazeCubiodFaces::Horizontal
 					);
@@ -72,13 +69,13 @@ void AMaze::InitArrays() {
 				if (HWalls[j * X + i]) {
 					AddCuboid(
 						FVector(
-							CellSize * (W + (W + 1.0f) * i - ((W + 1.0f) * X + W) / 2.0f),
-							CellSize * ((W + 1.0f) * j - ((W + 1.0f) * Y + W) / 2.0f),
+							Size * (W + (W + 1.0f) * i - ((W + 1.0f) * X + W) / 2.0f),
+							Size * ((W + 1.0f) * j - ((W + 1.0f) * Y + W) / 2.0f),
 							0.0f
 						),
 						FVector(
-							CellSize * ((W + 1.0f) * (i + 1) - ((W + 1.0f) * X + W) / 2.0f),
-							CellSize * (W + (W + 1.0f) * j - ((W + 1.0f) * Y + W) / 2.0f),
+							Size * ((W + 1.0f) * (i + 1) - ((W + 1.0f) * X + W) / 2.0f),
+							Size * (W + (W + 1.0f) * j - ((W + 1.0f) * Y + W) / 2.0f),
 							H
 						), EMazeCubiodFaces::Vertical
 					);
@@ -87,13 +84,13 @@ void AMaze::InitArrays() {
 			// Corner
 			AddCuboid(
 				FVector(
-					CellSize * ((W + 1.0f) * i - ((W + 1.0f) * X + W) / 2.0f),
-					CellSize * ((W + 1.0f) * j - ((W + 1.0f) * Y + W) / 2.0f),
+					Size * ((W + 1.0f) * i - ((W + 1.0f) * X + W) / 2.0f),
+					Size * ((W + 1.0f) * j - ((W + 1.0f) * Y + W) / 2.0f),
 					0.0f
 				),
 				FVector(
-					CellSize * (W + (W + 1.0f) * i - ((W + 1.0f) * X + W) / 2.0f),
-					CellSize * (W + (W + 1.0f) * j - ((W + 1.0f) * Y + W) / 2.0f),
+					Size * (W + (W + 1.0f) * i - ((W + 1.0f) * X + W) / 2.0f),
+					Size * (W + (W + 1.0f) * j - ((W + 1.0f) * Y + W) / 2.0f),
 					1.1f * H
 				), EMazeCubiodFaces::All
 			);
@@ -214,12 +211,13 @@ void AMaze::GenerateMaze() {
 	int32 it{ 0 };
 	while (N > 0) {
 		if (++it > MaxIterations) {
-			UE_LOG(LogProceduralMeshes, Warning, TEXT("%s: Limit of %i iteration exceeded!"), *GetName(), MaxIterations);
+			////UE_LOG(LogProceduralMeshes, Warning, TEXT("%s: Limit of %i iteration exceeded!"), *GetName(), MaxIterations);
 			break;
 		}
-		UE_LOG(LogProceduralMeshes, Display, TEXT("%s: N: %i, Processing (%i, %i)"), *GetName(), N, Path[N - 1] % X, Path[N - 1] / X);
+		//UE_LOG(LogProceduralMeshes, Display, TEXT("%s: N: %i, Processing (%i, %i)"), *GetName(), N, Path[N - 1] % X, Path[N - 1] / X);
 		int32 NextCell{ GetRandomNeighbour(Path[N - 1], Cells) };
 		if (NextCell >= X * Y) {
+			UE_LOG(LogProceduralMeshes, Warning, TEXT("%s: Next cell index (%I) is above maximum possible (%i)!"), *GetName(), NextCell, X * Y - 1);
 			break;
 		}
 		if (NextCell >= 0) {
@@ -274,7 +272,7 @@ int32 AMaze::GetRandomNeighbour(int32 Index, bool* Cells) {
 		AvailDirs[3] = true;
 		++Dirs;
 	}
-	UE_LOG(LogProceduralMeshes, Display, TEXT("%s: Neighbours %i: %i, %i, %i, %i"), *GetName(), Dirs, AvailDirs[0], AvailDirs[1], AvailDirs[2], AvailDirs[3]);
+	//UE_LOG(LogProceduralMeshes, Display, TEXT("%s: Neighbours %i: %i, %i, %i, %i"), *GetName(), Dirs, AvailDirs[0], AvailDirs[1], AvailDirs[2], AvailDirs[3]);
 	// No neighbours
 	if (Dirs <= 0) {
 		return -1;
@@ -286,16 +284,16 @@ int32 AMaze::GetRandomNeighbour(int32 Index, bool* Cells) {
 		if (ValidDir == Dir) {
 			switch (i) {
 				case 0:
-					UE_LOG(LogProceduralMeshes, Display, TEXT("%s: Southern dir (%i, %i)"), *GetName(), (Index - X) % X, (Index - X) / X);
+					//UE_LOG(LogProceduralMeshes, Display, TEXT("%s: Southern dir (%i, %i)"), *GetName(), (Index - X) % X, (Index - X) / X);
 					return Index - X;
 				case 1:
-					UE_LOG(LogProceduralMeshes, Display, TEXT("%s: Northern dir (%i, %i)"), *GetName(), (Index + X) % X, (Index + X) / X);
+					//UE_LOG(LogProceduralMeshes, Display, TEXT("%s: Northern dir (%i, %i)"), *GetName(), (Index + X) % X, (Index + X) / X);
 					return Index + X;
 				case 2:
-					UE_LOG(LogProceduralMeshes, Display, TEXT("%s: Eastern dir (%i, %i)"), *GetName(), (Index - 1) % X, (Index - 1) / X);
+					//UE_LOG(LogProceduralMeshes, Display, TEXT("%s: Eastern dir (%i, %i)"), *GetName(), (Index - 1) % X, (Index - 1) / X);
 					return Index - 1;
 				case 3:
-					UE_LOG(LogProceduralMeshes, Display, TEXT("%s: Western dir (%i, %i)"), *GetName(), (Index + 1) % X, (Index + 1) / X);
+					//UE_LOG(LogProceduralMeshes, Display, TEXT("%s: Western dir (%i, %i)"), *GetName(), (Index + 1) % X, (Index + 1) / X);
 					return Index + 1;
 			}
 			break;
@@ -305,7 +303,7 @@ int32 AMaze::GetRandomNeighbour(int32 Index, bool* Cells) {
 }
 
 void AMaze::BreakWall(int32 C1, int32 C2) {
-	UE_LOG(LogProceduralMeshes, Display, TEXT("%s: Breaking wall (%i,%i)|(%i,%i)"), *GetName(), C1 % X, C1 / X, C2 % X, C2 / X);
+	//UE_LOG(LogProceduralMeshes, Display, TEXT("%s: Breaking wall (%i,%i)|(%i,%i)"), *GetName(), C1 % X, C1 / X, C2 % X, C2 / X);
 	if (C1 < 0 || C2 < 0 || C1 >= X * Y || C2 >= X * Y) {
 		return;
 	}
@@ -317,5 +315,5 @@ void AMaze::BreakWall(int32 C1, int32 C2) {
 		HWalls[(C1 > C2 ? C1 : C2)] = false;
 		return;
 	}
-	UE_LOG(LogProceduralMeshes, Warning, TEXT("%s: Breaking wall failed!"), *GetName());
+	UE_LOG(LogProceduralMeshes, Warning, TEXT("%s: Breaking wall (%i,%i)|(%i,%i) failed!"), *GetName(), C1 % X, C1 / X, C2 % X, C2 / X);
 }

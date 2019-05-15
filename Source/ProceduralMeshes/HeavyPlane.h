@@ -17,7 +17,7 @@ protected:
 	virtual void InitArrays() override;
 
 protected:
-	UPROPERTY(BlueprintReadonly, EditAnywhere, Category = "Settings", meta = (ClampMin = "2", ClampMax = "256", UIMin = "2", UIMax = "256"))
+	UPROPERTY(BlueprintReadonly, EditAnywhere, Category = "ProceduralMesh|HeavyPanel", meta = (ClampMin = "2", ClampMax = "256", UIMin = "2", UIMax = "256"))
 		int32 VerticesPerSide = 2;
 
 	int32 InnerVerticesPerSide = 0;
