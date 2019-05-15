@@ -25,7 +25,9 @@ bool AMaze::HasChanges() {
 void AMaze::InitArrays() {
 	Super::InitArrays();
 
-	GenerateMaze();
+	if (IsMazeNeedGenerate) {
+		GenerateMaze();
+	}
 	W = WallWidthRelative;
 	H = Height;
 
@@ -210,23 +212,20 @@ void AMaze::GenerateMaze() {
 	Cells[Path[0]] = true;
 
 	int32 it{ 0 };
-	while (N >= 0) {
-		if (++it > 10000) {
-			UE_LOG(LogProceduralMeshes, Warning, TEXT("%s: Limit of 10000 iteration exceeded!"), *GetName());
+	while (N > 0) {
+		if (++it > MaxIterations) {
+			UE_LOG(LogProceduralMeshes, Warning, TEXT("%s: Limit of %i iteration exceeded!"), *GetName(), MaxIterations);
 			break;
 		}
-		UE_LOG(LogProceduralMeshes, Display, TEXT("%s: Processing (%i, %i)"), *GetName(), Path[N - 1] % X, Path[N - 1] / X);
+		UE_LOG(LogProceduralMeshes, Display, TEXT("%s: N: %i, Processing (%i, %i)"), *GetName(), N, Path[N - 1] % X, Path[N - 1] / X);
 		int32 NextCell{ GetRandomNeighbour(Path[N - 1], Cells) };
 		if (NextCell >= X * Y) {
-			UE_LOG(LogProceduralMeshes, Warning, TEXT("%s: Next cell is %i!"), *GetName(), NextCell);
 			break;
-		} else {
-			UE_LOG(LogProceduralMeshes, Display, TEXT("%s: Next cell is %i"), *GetName(), NextCell);
 		}
-		if (NextCell > 0) {
+		if (NextCell >= 0) {
 			Path[N] = NextCell;
+			Cells[Path[N]] = true;
 			BreakWall(Path[N - 1], Path[N]);
-			Cells[N] = true;
 			++N;
 		} else {
 			--N;
@@ -252,44 +251,52 @@ void AMaze::GenerateMaze() {
 }
 
 int32 AMaze::GetRandomNeighbour(int32 Index, bool* Cells) {
-	// 1 - North, 2 - South, 4 - West, 8 - East
-	uint8_t DirFlags{ 0 };
+	// 0 - South (-X), 1 - North (+X), 2 - East(-1), 3 - West(+1)
+	bool AvailDirs[4] = { false, false, false, false };
 	uint8_t Dirs{ 0 };
-	// Northern edge
-	if (Index >= 40 && !Cells[Index - X]) {
-		DirFlags += 1;
-		++Dirs;
-	}
 	// Southern edge
-	if (Index < (Y - 1) * X && !Cells[Index + X]) {
-		DirFlags += 2;
+	if (Index >= X && !Cells[Index - X]) {
+		AvailDirs[0] = true;
 		++Dirs;
 	}
-	// Western edge
-	if (Index % X != 0 && !Cells[Index - 1]) {
-		DirFlags += 4;
+	// Northern edge
+	if (Index < (Y - 1) * X && !Cells[Index + X]) {
+		AvailDirs[1] = true;
 		++Dirs;
 	}
 	// Eastern edge
-	if (Index % X != X - 1 && !Cells[Index + 1]) {
-		DirFlags += 8;
+	if (Index % X != 0 && !Cells[Index - 1]) {
+		AvailDirs[2] = true;
 		++Dirs;
 	}
-	UE_LOG(LogProceduralMeshes, Display, TEXT("%s: Neighbours %i"), *GetName(), DirFlags);
+	// Western edge
+	if (Index % X != X - 1 && !Cells[Index + 1]) {
+		AvailDirs[3] = true;
+		++Dirs;
+	}
+	UE_LOG(LogProceduralMeshes, Display, TEXT("%s: Neighbours %i: %i, %i, %i, %i"), *GetName(), Dirs, AvailDirs[0], AvailDirs[1], AvailDirs[2], AvailDirs[3]);
 	// No neighbours
 	if (Dirs <= 0) {
 		return -1;
 	}
-	uint8_t Dir = rand() % Dirs;
+	uint8_t Dir = (rand() % Dirs) + 1;
 	uint8_t ValidDir{ 0 };
 	for (uint8_t i = 0; i < 4; ++i) {
-		ValidDir += (DirFlags >> i) % 2;
+		ValidDir += (AvailDirs[i] ? 1 : 0);
 		if (ValidDir == Dir) {
 			switch (i) {
-				case 0: return Index - X;
-				case 1: return Index + X;
-				case 2: return Index - 1;
-				case 3: return Index + 1;
+				case 0:
+					UE_LOG(LogProceduralMeshes, Display, TEXT("%s: Southern dir (%i, %i)"), *GetName(), (Index - X) % X, (Index - X) / X);
+					return Index - X;
+				case 1:
+					UE_LOG(LogProceduralMeshes, Display, TEXT("%s: Northern dir (%i, %i)"), *GetName(), (Index + X) % X, (Index + X) / X);
+					return Index + X;
+				case 2:
+					UE_LOG(LogProceduralMeshes, Display, TEXT("%s: Eastern dir (%i, %i)"), *GetName(), (Index - 1) % X, (Index - 1) / X);
+					return Index - 1;
+				case 3:
+					UE_LOG(LogProceduralMeshes, Display, TEXT("%s: Western dir (%i, %i)"), *GetName(), (Index + 1) % X, (Index + 1) / X);
+					return Index + 1;
 			}
 			break;
 		}
@@ -298,15 +305,17 @@ int32 AMaze::GetRandomNeighbour(int32 Index, bool* Cells) {
 }
 
 void AMaze::BreakWall(int32 C1, int32 C2) {
-	if (C1 < 0 || C2 < 0 || C1 >= X * Y || C2 >= X * Y || (C1 % X == 0 && C2 % X == X - 1) || (C1 % X == X - 1 && C2 % X == 0)) {
+	UE_LOG(LogProceduralMeshes, Display, TEXT("%s: Breaking wall (%i,%i)|(%i,%i)"), *GetName(), C1 % X, C1 / X, C2 % X, C2 / X);
+	if (C1 < 0 || C2 < 0 || C1 >= X * Y || C2 >= X * Y) {
 		return;
 	}
-	if (abs(C1 - C2) == 1) {
+	if (abs(C1 - C2) == 1 && C1 / X == C2 / X) {
 		VWalls[C1 / X * (X + 1) + (C1 > C2 ? C1 % X : C2 % X)] = false;
 		return;
 	}
 	if (abs(C1 - C2) == X) {
-		HWalls[(C1 > C2 ? C1 : C2) + C1 % X] = false;
+		HWalls[(C1 > C2 ? C1 : C2)] = false;
 		return;
 	}
+	UE_LOG(LogProceduralMeshes, Warning, TEXT("%s: Breaking wall failed!"), *GetName());
 }

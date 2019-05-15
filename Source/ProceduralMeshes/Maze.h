@@ -54,6 +54,9 @@ protected:
 	/** Wall height */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Maze", meta = (ClampMin = "0"))
 		float Height = 0.05f;
+	/** Interation limit for generator */
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Maze", meta = (ClampMin = "0"))
+		int32 MaxIterations = 100000;
 
 	/** Inner number of cells in horizontal direction */
 	int32 X;
